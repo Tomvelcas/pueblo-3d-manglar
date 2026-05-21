@@ -20,6 +20,7 @@ const animatedBoats = [];
 const mangroveGlowMeshes = [];
 const nightPointLights = [];
 const windowMaterials = [];
+const animatedBirds = [];
 const keyboard = new Set();
 const phaseGroups = {};
 
@@ -39,6 +40,10 @@ const phaseCopy = {
   3: {
     title: 'Fase 3: Levantar comunidad',
     text: 'Despues: los puentes habitables conectan plaza, centro comunitario, cultura local y recorridos seguros sobre el manglar.',
+  },
+  4: {
+    title: 'Fase 4: Expansion progresiva',
+    text: 'Apropiacion comunitaria: nuevas celulas de mercado, cultura, aprendizaje y muelle vivo crecen desde la red principal.',
   },
 };
 
@@ -164,9 +169,10 @@ function createScene() {
           <button class="phase-button" type="button" data-phase="1">Transformar</button>
           <button class="phase-button" type="button" data-phase="2">Planificar</button>
           <button class="phase-button" type="button" data-phase="3">Levantar</button>
+          <button class="phase-button" type="button" data-phase="4">Expandir</button>
         </div>
         <div class="phase-track" aria-hidden="true">
-          <span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
         </div>
         <strong id="phase-title"></strong>
         <p id="phase-description"></p>
@@ -335,6 +341,8 @@ function createScene() {
   createPhaseOneRecoveryLayer();
   createPhaseTwoCommunityLayer();
   createPhaseThreeCultureLayer();
+  createPhaseFourExpansionLayer();
+  createBirdFlock();
 
   window.addEventListener('resize', handleResize);
   window.addEventListener('keydown', handleKeyDown);
@@ -378,7 +386,7 @@ function createWater() {
 }
 
 function createPhaseGroups() {
-  [1, 2, 3].forEach((phase) => {
+  [1, 2, 3, 4].forEach((phase) => {
     phaseGroups[phase] = new THREE.Group();
     phaseGroups[phase].name = `phase-${phase}`;
     scene.add(phaseGroups[phase]);
@@ -393,8 +401,8 @@ function assignToPhase(phase, object) {
 
 function setPhase(phase) {
   currentPhase = phase;
-  [1, 2, 3].forEach((phaseNumber) => {
-    phaseGroups[phaseNumber].visible = phaseNumber === currentPhase;
+  [1, 2, 3, 4].forEach((phaseNumber) => {
+    phaseGroups[phaseNumber].visible = phaseNumber === currentPhase || (currentPhase === 4 && phaseNumber === 3);
   });
 
   const copy = phaseCopy[currentPhase];
@@ -516,6 +524,188 @@ function createPhaseThreeCultureLayer() {
       castShadow: false,
     });
   }
+}
+
+function createPhaseFourExpansionLayer() {
+  const group = phaseGroups[4];
+
+  assignToPhase(4, createBoardwalk([
+    [55, 3],
+    [66, 2],
+    [74, -8],
+  ], 2.35));
+  assignToPhase(4, createBoardwalk([
+    [39, -28],
+    [52, -39],
+    [68, -38],
+  ], 2.25));
+  assignToPhase(4, createBoardwalk([
+    [-38, -39],
+    [-54, -44],
+    [-68, -35],
+  ], 2.15));
+  assignToPhase(4, createBoardwalk([
+    [66, 22],
+    [76, 31],
+  ], 2.1));
+  assignToPhase(4, createBoardwalk([
+    [-69, 23],
+    [-78, 35],
+  ], 2.05));
+
+  createCommunityCell(group, 74, -8, 0.2, 'mercado', 0xf0a64c);
+  createCommunityCell(group, 68, -38, -0.65, 'muelle', 0x3da4b5);
+  createCommunityCell(group, -68, -35, 0.55, 'taller', 0x78b65f);
+  createCommunityCell(group, 76, 31, -0.2, 'mirador', 0xdac15d);
+  createCommunityCell(group, -78, 35, 0.35, 'cultura', 0xd76a7a);
+
+  createStringLights(group, [
+    [55, 3], [66, 2], [74, -8], [68, -38], [52, -39], [39, -28],
+  ]);
+  createStringLights(group, [
+    [-78, 35], [-69, 23], [-54, -44], [-68, -35],
+  ]);
+  createFloatingGarden(group, 58, -29, 0);
+  createFloatingGarden(group, -62, 30, 1);
+}
+
+function createCommunityCell(parent, x, z, rotation, type, color) {
+  const group = new THREE.Group();
+  group.position.set(x, 0, z);
+  group.rotation.y = rotation;
+
+  addBox(group, 0xb99668, [7.0, 0.32, 5.2], [0, deckY, 0], [0, 0, 0], {
+    material: materials.paleWood,
+    castShadow: false,
+  });
+
+  for (let i = 0; i < 8; i += 1) {
+    const angle = (i / 8) * Math.PI * 2;
+    addCylinder(group, 0x5a3b25, 0.06, deckY + 0.2, [Math.cos(angle) * 3.2, (deckY + 0.2) / 2, Math.sin(angle) * 2.4], {
+      material: materials.darkWood,
+      segments: 7,
+      castShadow: false,
+    });
+  }
+
+  if (type === 'mercado') {
+    for (let i = 0; i < 4; i += 1) {
+      createMarketStall(group, -2.2 + i * 1.45, -0.65 + (i % 2) * 1.6, i);
+    }
+  } else if (type === 'muelle') {
+    addBox(group, 0x8a613f, [3.8, 0.2, 1.1], [0, deckY + 0.35, 2.8], [0, 0, 0], {
+      material: materials.wood,
+      castShadow: false,
+    });
+    const boatA = createBoat(x + 2, z + 5, rotation + 0.4, 0x3c8f7c);
+    const boatB = createBoat(x - 3, z + 4.5, rotation - 0.2, 0xcc8a3a);
+    boatA.scale.setScalar(0.82);
+    boatB.scale.setScalar(0.78);
+    phaseGroups[4].attach(boatA);
+    phaseGroups[4].attach(boatB);
+  } else if (type === 'mirador') {
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(2.15, 0.055, 8, 40),
+      materials.rail,
+    );
+    ring.position.y = deckY + 1.15;
+    ring.rotation.x = Math.PI / 2;
+    group.add(ring);
+    addCylinder(group, 0x4f9e4a, 0.45, 2.4, [0, deckY + 1.35, 0], {
+      segments: 7,
+      material: new THREE.MeshStandardMaterial({ color: 0x4f9e4a, roughness: 0.8 }),
+      castShadow: false,
+    });
+  } else {
+    addBox(group, color, [4.4, 1.45, 2.8], [0, deckY + 1.0, 0], [0, 0, 0], {
+      roughness: 0.66,
+      castShadow: false,
+    });
+    const roof = createGableRoof(5.1, 3.4, 0.9, 0xcaa66a, 0.86);
+    roof.position.y = deckY + 1.78;
+    roof.rotation.y = Math.PI / 2;
+    group.add(roof);
+  }
+
+  addBox(group, color, [2.1, 0.18, 0.12], [0, deckY + 1.92, -2.68], [0, 0, 0], {
+    material: new THREE.MeshBasicMaterial({ color }),
+    castShadow: false,
+  });
+
+  for (let i = 0; i < 6; i += 1) {
+    createNightLantern(group, -3 + i * 1.2, -2.35, i + x + z);
+  }
+
+  createStaticCrowd(group, 3.2, 1, 0.7);
+  parent.add(group);
+  return group;
+}
+
+function createMarketStall(parent, x, z, index) {
+  const colors = [0xf06d4f, 0x39a7c7, 0xf0c95d, 0x7fbf6a];
+  addBox(parent, 0x7f5a38, [1.05, 0.55, 0.9], [x, deckY + 0.58, z], [0, 0, 0], {
+    material: materials.wood,
+    castShadow: false,
+  });
+  addBox(parent, colors[index % colors.length], [1.25, 0.12, 1.05], [x, deckY + 1.08, z], [0, 0, 0], {
+    roughness: 0.7,
+    castShadow: false,
+  });
+  addBox(parent, 0xffd37a, [0.9, 0.08, 0.08], [x, deckY + 0.92, z - 0.48], [0, 0, 0], {
+    material: new THREE.MeshBasicMaterial({ color: 0xffd37a }),
+    castShadow: false,
+  });
+}
+
+function createStringLights(parent, points) {
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xffd58a,
+    transparent: true,
+    opacity: 0.68,
+  });
+  points.forEach(([x, z], index) => {
+    if (index % 2 === 0) {
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), material);
+      bulb.position.set(x, deckY + 2.1, z);
+      parent.add(bulb);
+
+      const glow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.55, 8, 6),
+        new THREE.MeshBasicMaterial({
+          color: 0xffd58a,
+          transparent: true,
+          opacity: 0,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        }),
+      );
+      glow.position.copy(bulb.position);
+      glow.userData.phase = random(index + x + z) * Math.PI * 2;
+      glow.userData.baseScale = glow.scale.clone();
+      glow.visible = false;
+      parent.add(glow);
+      mangroveGlowMeshes.push(glow);
+    }
+  });
+}
+
+function createFloatingGarden(parent, x, z, seed) {
+  const group = new THREE.Group();
+  group.position.set(x, 0, z);
+  for (let i = 0; i < 5; i += 1) {
+    addBox(group, 0x6f5132, [1.2, 0.18, 0.75], [(i - 2) * 1.25, 0.22, Math.sin(i) * 0.35], [0, random(seed + i) * 0.45, 0], {
+      material: materials.darkWood,
+      castShadow: false,
+    });
+    const leaf = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.42 + random(seed + i * 4) * 0.18, 1),
+      new THREE.MeshStandardMaterial({ color: 0x4f9e4a, roughness: 0.86 }),
+    );
+    leaf.position.set((i - 2) * 1.25, 0.62, Math.sin(i) * 0.35);
+    leaf.scale.set(1.2, 0.7, 1);
+    group.add(leaf);
+  }
+  parent.add(group);
 }
 
 function createPhaseSign(parent, x, z, rotation, seed) {
@@ -1355,6 +1545,37 @@ function createSky() {
   }
 }
 
+function createBirdFlock() {
+  const birdMaterial = new THREE.MeshBasicMaterial({
+    color: 0x1f3035,
+    side: THREE.DoubleSide,
+  });
+
+  for (let i = 0; i < 18; i += 1) {
+    const bird = new THREE.Group();
+    const wingGeometry = new THREE.BufferGeometry();
+    wingGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+      0, 0, 0,
+      -0.38, 0.06, -0.12,
+      -0.12, 0.02, 0.08,
+      0, 0, 0,
+      0.38, 0.06, -0.12,
+      0.12, 0.02, 0.08,
+    ]), 3));
+    wingGeometry.computeVertexNormals();
+    const wings = new THREE.Mesh(wingGeometry, birdMaterial);
+    bird.add(wings);
+    bird.position.set(-55 + random(i + 801) * 115, 18 + random(i + 802) * 16, -42 + random(i + 803) * 84);
+    bird.scale.setScalar(0.8 + random(i + 804) * 0.8);
+    bird.userData.origin = bird.position.clone();
+    bird.userData.speed = 0.08 + random(i + 805) * 0.12;
+    bird.userData.radius = 8 + random(i + 806) * 18;
+    bird.userData.phase = random(i + 807) * Math.PI * 2;
+    phaseGroups[4].add(bird);
+    animatedBirds.push(bird);
+  }
+}
+
 function localPoint(midX, midZ, angle, localX, localZ) {
   const cos = Math.cos(angle);
   const sin = Math.sin(angle);
@@ -1537,6 +1758,21 @@ function updateAnimatedBoats(elapsed) {
   });
 }
 
+function updateBirds(elapsed) {
+  if (currentPhase !== 4) return;
+  animatedBirds.forEach((bird) => {
+    const origin = bird.userData.origin;
+    const t = elapsed * bird.userData.speed + bird.userData.phase;
+    bird.position.set(
+      origin.x + Math.cos(t) * bird.userData.radius,
+      origin.y + Math.sin(t * 2.4) * 1.2,
+      origin.z + Math.sin(t) * bird.userData.radius * 0.55,
+    );
+    bird.rotation.y = -t + Math.PI / 2;
+    bird.rotation.z = Math.sin(t * 4) * 0.18;
+  });
+}
+
 function updateNightGlow(elapsed) {
   if (!isNight) return;
   mangroveGlowMeshes.forEach((glow) => {
@@ -1571,6 +1807,7 @@ function animate() {
 
   updateCameraMovement(delta);
   updateAnimatedBoats(elapsed);
+  updateBirds(elapsed);
   updateNightGlow(elapsed);
   controls.update();
   keepWalkCameraLevel();
