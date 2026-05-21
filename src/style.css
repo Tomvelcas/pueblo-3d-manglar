@@ -1,0 +1,241 @@
+:root {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: #10242b;
+  background: #bfe7f4;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  min-width: 320px;
+}
+
+#scene-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  outline: none;
+  cursor: grab;
+}
+
+#scene-canvas:active {
+  cursor: grabbing;
+}
+
+.info-panel {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  z-index: 2;
+  max-width: min(360px, calc(100vw - 36px));
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 8px;
+  color: #12313b;
+  background: rgba(245, 252, 250, 0.76);
+  box-shadow: 0 12px 36px rgba(13, 42, 50, 0.18);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.info-panel strong,
+.info-panel span {
+  display: block;
+}
+
+.info-panel strong {
+  font-size: 15px;
+  line-height: 1.25;
+  font-weight: 750;
+}
+
+.info-panel span {
+  margin-top: 5px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #3a5961;
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.panel-actions button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(20, 58, 67, 0.18);
+  border-radius: 7px;
+  color: #12313b;
+  background: rgba(255, 255, 255, 0.7);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.panel-actions button:hover,
+.panel-actions button:focus-visible {
+  background: rgba(255, 255, 255, 0.92);
+  outline: none;
+}
+
+.info-panel details {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(20, 58, 67, 0.14);
+}
+
+.info-panel summary {
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.info-panel p {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #304d55;
+}
+
+.phase-panel {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(20, 58, 67, 0.14);
+}
+
+.phase-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.phase-button {
+  min-height: 30px;
+  border: 1px solid rgba(20, 58, 67, 0.18);
+  border-radius: 7px;
+  color: #12313b;
+  background: rgba(255, 255, 255, 0.62);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.phase-button.is-active {
+  color: #fff;
+  background: #2f7d6b;
+}
+
+.phase-track {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin: 9px 0;
+}
+
+.phase-track span {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(20, 58, 67, 0.18);
+}
+
+.phase-track span.is-active {
+  background: #44a886;
+}
+
+#phase-title {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+#phase-description {
+  margin-top: 5px;
+}
+
+.is-night .info-panel {
+  border-color: rgba(111, 255, 216, 0.24);
+  color: #dffdf6;
+  background: rgba(5, 16, 27, 0.78);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.38);
+}
+
+.is-night .info-panel span,
+.is-night .info-panel p {
+  color: #a8dcd2;
+}
+
+.is-night .info-panel details {
+  border-top-color: rgba(111, 255, 216, 0.18);
+}
+
+.is-night .phase-panel {
+  border-top-color: rgba(111, 255, 216, 0.18);
+}
+
+.is-night .panel-actions button {
+  border-color: rgba(111, 255, 216, 0.3);
+  color: #dffdf6;
+  background: rgba(39, 89, 96, 0.62);
+}
+
+.is-night .phase-button {
+  border-color: rgba(111, 255, 216, 0.25);
+  color: #dffdf6;
+  background: rgba(39, 89, 96, 0.5);
+}
+
+.is-night .phase-button.is-active {
+  color: #062017;
+  background: #7cffd4;
+}
+
+.is-night .phase-track span {
+  background: rgba(168, 220, 210, 0.18);
+}
+
+.is-night .phase-track span.is-active {
+  background: #7cffd4;
+}
+
+.is-night .panel-actions button:hover,
+.is-night .panel-actions button:focus-visible {
+  background: rgba(49, 117, 120, 0.78);
+}
+
+@media (max-width: 640px) {
+  .info-panel {
+    top: 12px;
+    left: 12px;
+    max-width: calc(100vw - 24px);
+    padding: 12px 13px;
+  }
+
+  .info-panel strong {
+    font-size: 14px;
+  }
+
+  .info-panel span {
+    font-size: 12px;
+  }
+}
